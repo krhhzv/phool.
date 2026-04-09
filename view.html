@@ -20,6 +20,7 @@ body{
   justify-content:center;
   align-items:center;
   overflow:hidden;
+  position:relative;
 }
 
 /* paper */
@@ -47,7 +48,7 @@ body{
   to{opacity:1;}
 }
 
-/* flowers */
+/* 🌸 flowers */
 .flower{
   position:absolute;
   font-size:18px;
@@ -58,43 +59,27 @@ body{
   to{transform:translateY(-10vh)}
 }
 
-/* hug */
-.characters{
+/* 🐱 CAT */
+.cat{
   position:absolute;
-  bottom:10px;
+  bottom:20px;
   left:50%;
   transform:translateX(-50%);
-  display:flex;
-  gap:10px;
+  font-size:34px;
+  animation:bounce 2s ease-in-out infinite;
 }
-.person{
-  width:30px;
-  height:45px;
-  border:2px solid #000;
-  border-radius:15px;
-  background:#fff;
-  position:relative;
-}
-.person::before{
-  content:"";
-  width:18px;
-  height:18px;
-  border:2px solid #000;
-  border-radius:50%;
-  position:absolute;
-  top:-14px;
-  left:50%;
-  transform:translateX(-50%);
-}
-.characters.hug .person:first-child{transform:translateX(5px)}
-.characters.hug .person:last-child{transform:translateX(-5px)}
 
+/* subtle bounce */
+@keyframes bounce{
+  0%,100%{transform:translateX(-50%) translateY(0);}
+  50%{transform:translateX(-50%) translateY(-6px);}
+}
+
+/* actions */
 .actions{
   position:absolute;
   top:10px;
   right:10px;
-  display:flex;
-  gap:6px;
 }
 
 .actions button{
@@ -102,6 +87,7 @@ body{
   font-size:12px;
 }
 
+/* credit */
 .credit{
   position:absolute;
   bottom:5px;
@@ -122,14 +108,12 @@ body{
   <button onclick="downloadImage()">📸</button>
 </div>
 
-<div class="characters" id="chars">
-  <div class="person"></div>
-  <div class="person"></div>
-</div>
+<!-- 🐱 CAT -->
+<div class="cat">🐱</div>
 
 <div class="credit">built by someone for his someone.</div>
 
-<!-- heartbeat sound -->
+<!-- heartbeat -->
 <audio id="beat" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b7c0b.mp3" loop></audio>
 
 <script>
@@ -153,7 +137,7 @@ function write(text){
 }
 write(data.msg);
 
-/* flowers */
+/* 🌸 flowers */
 for(let i=0;i<15;i++){
   const f=document.createElement("div");
   f.className="flower";
@@ -163,17 +147,12 @@ for(let i=0;i<15;i++){
   document.body.appendChild(f);
 }
 
-/* hug */
-setTimeout(()=>{
-  chars.classList.add("hug");
-},1500);
-
 /* sound */
 setTimeout(()=>{
   document.getElementById("beat").play().catch(()=>{});
 },800);
 
-/* download image */
+/* download */
 function downloadImage(){
   html2canvas(document.getElementById("capture")).then(canvas=>{
     const link=document.createElement("a");
