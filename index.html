@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>phool.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Shadows+Into+Light&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f6f1e8;
+      --border-color: #cfc7bd;
+      --text-color: #000;
+      --accent-color: #ffd1d9;
+      --btn-bg: #fff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-color);
+      font-family: 'Patrick Hand', cursive;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding-top: 5vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      padding: 20px;
+    }
+
+    /* logo */
+    .logo {
+      font-size: 38px;
+      transform: rotate(-3deg);
+      position: relative;
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--text-color);
+    }
+
+    .logo::after {
+      content: "✿";
+      position: absolute;
+      right: -24px;
+      top: -8px;
+      font-size: 28px;
+    }
+
+    /* inputs */
+    .input {
+      width: 100%;
+      border: none;
+      border-bottom: 2px dashed var(--border-color);
+      margin: 14px 0;
+      padding: 10px;
+      font-size: 18px;
+      background: none;
+      font-family: inherit;
+      color: inherit;
+      transition: border-color 0.2s ease;
+      outline: none;
+    }
+
+    .input:focus {
+      border-bottom-color: var(--text-color);
+    }
+
+    .input::placeholder {
+      color: #a09a92;
+    }
+
+    textarea.input {
+      height: 120px;
+      resize: none;
+    }
+
+    /* gifts */
+    .gifts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 10px 0 20px;
+    }
+
+    .gift {
+      padding: 8px 16px;
+      border: 2px solid var(--text-color);
+      background: var(--btn-bg);
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--text-color);
+      font-size: 16px;
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    .gift:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--text-color);
+    }
+
+    .gift.active {
+      background: var(--accent-color);
+    }
+
+    /* button */
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border: 2px solid var(--text-color);
+      background: var(--btn-bg);
+      font-size: 18px;
+      font-family: inherit;
+      box-shadow: 3px 3px 0 var(--text-color);
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+
+    button:active {
+      transform: translate(3px, 3px);
+      box-shadow: 0 0 0 var(--text-color);
+    }
+
+    .output {
+      margin-top: 24px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .output-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      text-decoration: underline;
+      color: var(--text-color);
+      font-size: 20px;
+      transition: color 0.2s ease;
+    }
+
+    .output-link:hover {
+      color: #ff6b81;
+    }
+
+    .output-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .output-actions button {
+      margin-top: 0;
+      font-size: 16px;
+    }
+
+    .credit {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="logo">phool.</div>
+
+    <input id="input-to" class="input" placeholder="to:">
+    <input id="input-from" class="input" placeholder="from:">
+    <textarea id="input-msg" class="input" placeholder="write whatever..."></textarea>
+
+    <div class="gifts">
+      <div class="gift" onclick="toggleGift(this,'🌸')">🌸</div>
+      <div class="gift" onclick="toggleGift(this,'♡')">♡</div>
+      <div class="gift" onclick="toggleGift(this,'✨')">✨</div>
+      <div class="gift" onclick="toggleGift(this,'★')">★</div>
+      <div class="gift" onclick="toggleGift(this,'🎀')">🎀</div>
+    </div>
+
+    <button onclick="generateLink()">make it</button>
+
+    <div id="output-container" class="output"></div>
+
+    <div class="credit">built by someone for his someone.</div>
+
+  </div>
+
+  <script>
+    let selectedGifts = [];
+
+    function toggleGift(el, gift) {
+      if (selectedGifts.includes(gift)) {
+        selectedGifts = selectedGifts.filter(g => g !== gift);
+        el.classList.remove("active");
+      } else {
+        selectedGifts.push(gift);
+        el.classList.add("active");
+      }
+    }
+
+    function generateLink() {
+      const toVal = document.getElementById('input-to').value.trim();
+      const fromVal = document.getElementById('input-from').value.trim();
+      const msgVal = document.getElementById('input-msg').value.trim();
+
+      // Pick a default gift if none selected
+      const finalGifts = selectedGifts.length > 0 ? selectedGifts : ['🌸'];
+
+      const data = {
+        to: toVal,
+        from: fromVal,
+        msg: msgVal,
+        gifts: finalGifts
+      };
+
+      const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
+
+      let base = window.location.href;
+      if (base.includes("index.html")) {
+        base = base.replace("index.html", "");
+      } else if (!base.endsWith("/")) {
+        base += "/";
+      }
+
+      const link = base + "view.html?data=" + encoded;
+      const out = document.getElementById('output-container');
+
+      out.innerHTML = `
+    <a href="${link}" target="_blank" class="output-link">open your phool 💌</a>
+    <div class="output-actions">
+      <button id="copy-btn" onclick="copyLink('${link}')">copy link</button>
+      <button onclick="shareWhatsApp('${link}')">whatsapp</button>
+    </div>
+  `;
+    }
+
+    function copyLink(link) {
+      navigator.clipboard.writeText(link).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const originalText = btn.innerText;
+        btn.innerText = "copied! ✓";
+        btn.style.background = "var(--accent-color)";
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.background = "var(--btn-bg)";
+        }, 2000);
+      });
+    }
+
+    function shareWhatsApp(link) {
+      const url = "https://wa.me/?text=" + encodeURIComponent("someone sent you this 💌 " + link);
+      window.open(url, "_blank");
+    }
+  </script>
+
+</body>
+
+</html>

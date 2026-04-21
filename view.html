@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>phool.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Shadows+Into+Light&display=swap"
+    rel="stylesheet">
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #f6f1e8;
+      --paper-bg: #fffaf5;
+      --border-color: #cfc7bd;
+      --text-color: #000;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-color);
+      font-family: 'Patrick Hand', cursive;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+      color: var(--text-color);
+    }
+
+    /* paper */
+    .paper {
+      width: 90%;
+      max-width: 520px;
+      padding: 30px 20px;
+      background: var(--paper-bg);
+      border: 2px dashed var(--border-color);
+      z-index: 10;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.05);
+      font-size: 20px;
+    }
+
+    /* text */
+    .msg {
+      margin: 24px 0;
+      font-size: 22px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    /* typing */
+    .msg span {
+      opacity: 0;
+      animation: write 0.3s forwards;
+    }
+
+    @keyframes write {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* flowers/gifts */
+    .flower {
+      position: absolute;
+      font-size: 24px;
+      animation: float 6s linear infinite;
+      z-index: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      from {
+        transform: translateY(100vh) rotate(0deg);
+      }
+
+      to {
+        transform: translateY(-10vh) rotate(360deg);
+      }
+    }
+
+    /* CAT */
+    .cat {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 38px;
+      animation: bounce 2s ease-in-out infinite;
+      z-index: 5;
+      user-select: none;
+    }
+
+    /* subtle bounce */
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-8px);
+      }
+    }
+
+    /* actions */
+    .actions {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 20;
+    }
+
+    .actions button {
+      padding: 8px 12px;
+      font-size: 16px;
+      background: #fff;
+      border: 2px solid var(--text-color);
+      box-shadow: 2px 2px 0 var(--text-color);
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+
+    .actions button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--text-color);
+    }
+
+    /* credit */
+    .credit {
+      position: absolute;
+      bottom: 8px;
+      font-size: 12px;
+      color: #888;
+      z-index: 20;
+    }
+
+    /* Start screen for audio */
+    #start-screen {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      transition: opacity 0.5s;
+    }
+
+    #start-screen button {
+      padding: 15px 30px;
+      font-size: 20px;
+      font-family: inherit;
+      background: #fff;
+      border: 2px solid var(--text-color);
+      box-shadow: 4px 4px 0 var(--text-color);
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="start-screen">
+    <button onclick="startExperience()">open 💌</button>
+  </div>
+
+  <div id="capture" class="paper">
+    <div id="to"></div>
+    <div id="msg" class="msg"></div>
+    <div id="from"></div>
+  </div>
+
+  <div class="actions">
+    <button id="mute-btn" onclick="toggleMute()">🔊</button>
+    <button onclick="downloadImage()">📸</button>
+  </div>
+
+  <!-- CAT -->
+  <div class="cat">🐱</div>
+
+  <div class="credit">built by someone for his someone.</div>
+
+  <!-- heartbeat -->
+  <audio id="beat" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b7c0b.mp3" loop></audio>
+
+  <script>
+    let data = { to: "", from: "", msg: "No message found.", gifts: ["🌸"] };
+    try {
+      const params = new URLSearchParams(location.search);
+      const rawData = params.get("data");
+      if (rawData) {
+        data = JSON.parse(decodeURIComponent(atob(rawData)));
+      }
+    } catch (e) {
+      console.error("Failed to parse data");
+    }
+
+    document.getElementById("to").innerText = "to: " + (data.to || "");
+    document.getElementById("from").innerText = "from: " + (data.from || "");
+
+    let audioStarted = false;
+    let isMuted = false;
+    const audio = document.getElementById("beat");
+
+    function startExperience() {
+      const startScreen = document.getElementById("start-screen");
+      startScreen.style.opacity = '0';
+      setTimeout(() => startScreen.remove(), 500);
+
+      audio.play().catch(() => { });
+      audioStarted = true;
+
+      writeMessage(data.msg);
+      spawnGifts(data.gifts || ["🌸"]);
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      audio.muted = isMuted;
+      document.getElementById("mute-btn").innerText = isMuted ? "🔇" : "🔊";
+    }
+
+    /* typing */
+    function writeMessage(text) {
+      const msgDiv = document.getElementById("msg");
+      msgDiv.innerHTML = "";
+      let delay = 0;
+      text.split("").forEach(char => {
+        const span = document.createElement("span");
+        span.innerText = char;
+        span.style.animationDelay = delay + "s";
+        msgDiv.appendChild(span);
+        delay += 0.03;
+      });
+    }
+
+    /* dynamic gifts */
+    function spawnGifts(giftsList) {
+      for (let i = 0; i < 15; i++) {
+        const f = document.createElement("div");
+        f.className = "flower";
+        f.innerText = giftsList[i % giftsList.length] || "🌸";
+        f.style.left = (Math.random() * 90 + 5) + "vw";
+        f.style.animationDuration = (4 + Math.random() * 4) + "s";
+        // Avoid rotating non-symmetrical emojis weirdly by setting their initial state
+        document.body.appendChild(f);
+      }
+    }
+
+    /* download */
+    function downloadImage() {
+      html2canvas(document.getElementById("capture"), {
+        backgroundColor: getComputedStyle(document.body).backgroundColor
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "phool_message.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script>
+
+</body>
+
+</html>
